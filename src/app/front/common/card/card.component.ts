@@ -98,7 +98,6 @@ export class CardComponent {
   private getValue() {
     switch (this._card.value) {
       case CardValue.Ace:
-      case CardValue.One:
         return 'A';
       case CardValue.King:
         return 'K';

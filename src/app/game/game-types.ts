@@ -21,7 +21,6 @@ export enum CardValue {
   Four = '4',
   Three = '3',
   Two = '2',
-  One = '1',
 }
 
 export const CardValueNames = {
@@ -84,6 +83,7 @@ export interface GameState {
   readonly deckSize: number;
   readonly top: IdentifiedCard;
   readonly discard: IdentifiedCard[];
+  readonly skipNextTurn: { [id: Player]: boolean };
 }
 
 export const hidePlayerState = (playerState: PlayerState): PlayerState => ({

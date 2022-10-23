@@ -5,7 +5,7 @@
     </div>
 
     <div class="flex flex-col">
-      <app-hand [playerState]="otherPlayerState" labelPosition="above"></app-hand>
+      <app-hand [top]="state.top" [playerState]="otherPlayerState" labelPosition="above"></app-hand>
 
       <div class="w-full h-48 flex items-center justify-center">
         <app-card [card]="state.top" [disabled]="true"></app-card>
@@ -16,7 +16,7 @@
     </div>
 
     <div class="flex items-center justify-center p-6">
-      <app-deck name="DECK" [hoverable]="true" [deckSize]="state.deckSize" (click)="clickDeck()"></app-deck>
+      <app-deck name="DECK" [hoverable]="true" [deckSize]="state.deckSize" (clickCard)="clickDeck()"></app-deck>
     </div>
   </div>
 

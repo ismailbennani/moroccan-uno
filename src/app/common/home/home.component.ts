@@ -9,7 +9,7 @@ import { GameService } from '../../front/common/game.service';
 })
 export class HomeComponent implements OnInit {
   public get hasSave(): boolean {
-    const stateKey = GameService.StorageKey + '-state';
+    const stateKey = GameService.StorageKey + '_state';
     return !!localStorage.getItem(stateKey);
   }
 
@@ -19,5 +19,6 @@ export class HomeComponent implements OnInit {
 
   newGame() {
     resetState();
+    location.replace('/game');
   }
 }

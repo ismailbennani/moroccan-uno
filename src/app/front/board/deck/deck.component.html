@@ -1,6 +1,6 @@
 <div class="relative">
   <app-card [hidden]="true" [disabled]="disabled"
-            (clickCard)="click.emit()" (hover)="hover.emit($event)"></app-card>
+            (clickCard)="clickCard.emit()" (hover)="hover.emit($event)"></app-card>
   <span
     class="absolute inset-0 flex flex-col items-center justify-center text-white select-none pointer-events-none">
           <span class="text-xxs">

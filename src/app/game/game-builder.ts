@@ -1,6 +1,7 @@
 import {
   Card,
   CardColors,
+  CardValue,
   CardValues,
   GameState,
   hideGameStateForPlayer,
@@ -32,6 +33,7 @@ export class GameBuilder {
           deckSize: deck.length,
           top: null,
           discard: [],
+          skipNextTurn: Object.fromEntries(playerStates.map(p => [p.player, false])),
         };
 
         for (let i = 0; i < nCards; i++) {
@@ -49,24 +51,28 @@ export class GameBuilder {
         drawCard: ({ G, playerID }): GameState => {
           return drawCardToPlayerHand(G, playerID);
         },
-        playCard: ({ G, playerID }, id: number): typeof INVALID_MOVE | GameState => {
+        playCard: (c, id: number): typeof INVALID_MOVE | GameState => {
+          const { G, playerID } = c;
+
           const cardIndex = G.players[playerID].hand.findIndex(c => c.id === id);
           if (cardIndex < 0) {
             return INVALID_MOVE;
           }
 
-          const card = G.players[playerID].hand[cardIndex];
+          const card: IdentifiedCard = G.players[playerID].hand[cardIndex];
 
           if (!validCard(G.top, card)) {
             return INVALID_MOVE;
           }
 
+          const newState = applyEffects(c, card);
+
           const newHand = G.players[playerID].hand.filter(c => c.id !== id);
 
           return {
-            ...G,
+            ...newState,
             players: Object.fromEntries(
-              Object.values(G.players).map(p =>
+              Object.values(newState.players).map(p =>
                 p.player === playerID
                   ? [
                       p.player,
@@ -86,8 +92,17 @@ export class GameBuilder {
       },
 
       turn: {
-        minMoves: 1,
+        minMoves: 0,
         maxMoves: 1,
+
+        onBegin: ({ G, ctx, events }) => {
+          const player = ctx.currentPlayer;
+
+          if (G.skipNextTurn[player]) {
+            events.endTurn();
+            G.skipNextTurn[player] = false;
+          }
+        },
       },
 
       endIf: ({ G }) => {
@@ -178,4 +193,23 @@ function drawCardToPlayerHand(G: GameState, player: Player): GameState {
 
 export function validCard(top: Card, newCard: Card) {
   return top.value === newCard.value || top.color === newCard.color;
+}
+
+function applyEffects({ G, ctx, events }, card): GameState {
+  let skipNextTurn = G.skipNextTurn;
+  const nextPlayerPos = (ctx.playOrderPos + 1) % ctx.playOrder.length;
+  const nextPlayer = ctx.playOrder[nextPlayerPos];
+
+  switch (card.value) {
+    case CardValue.Ace:
+      skipNextTurn = Object.fromEntries(
+        Object.entries(skipNextTurn).map(([p, b]) => (p === nextPlayer ? [p, true] : [p, b]))
+      );
+      break;
+  }
+
+  return {
+    ...G,
+    skipNextTurn,
+  };
 }

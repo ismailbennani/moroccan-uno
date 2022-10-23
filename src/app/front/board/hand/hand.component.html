@@ -3,12 +3,12 @@
 </div>
 
 <div class="flex gap-2 justify-center">
-  <ng-container *ngIf="!!playerState.hand">
+  <ng-container *ngIf="!!playerState.hand && playerState.hand.length === playerState.handSize">
     <div *ngFor="let card of playerState.hand; trackBy:getId">
       <app-card [card]="card" [size]="size" [disabled]="!canPlay(card)" (clickCard)="clickCard.emit(card)"></app-card>
     </div>
   </ng-container>
-  <ng-container *ngIf="!playerState.hand">
+  <ng-container *ngIf="!playerState.hand || playerState.hand.length !== playerState.handSize">
     <div *ngFor="let card of [].constructor(playerState.handSize)">
       <app-card [hidden]="true" [disabled]="true" [size]="size"></app-card>
     </div>

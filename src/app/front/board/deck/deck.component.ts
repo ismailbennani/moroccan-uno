@@ -26,7 +26,7 @@ export class DeckComponent {
   hover: EventEmitter<boolean> = new EventEmitter<boolean>();
 
   @Output()
-  click: EventEmitter<void> = new EventEmitter<void>();
+  clickCard: EventEmitter<void> = new EventEmitter<void>();
 
   constructor() {}
 }
