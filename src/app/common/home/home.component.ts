@@ -1,9 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { resetState } from '../../front/common/utils';
-import { rockIcon } from '@app/svg/rock';
-import { scissorsIcon } from '@app/svg/scissors';
-import { paperIcon } from '@app/svg/paper';
-import { GameInfoService } from '../../front/common/game-info/game-info.service';
+import { GameService } from '../../front/common/game.service';
 
 @Component({
   selector: 'app-home',
@@ -11,12 +8,8 @@ import { GameInfoService } from '../../front/common/game-info/game-info.service'
   styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent implements OnInit {
-  public readonly rockIcon = rockIcon;
-  public readonly paperIcon = paperIcon;
-  public readonly scissorsIcon = scissorsIcon;
-
   public get hasSave(): boolean {
-    const stateKey = GameInfoService.StorageKey + '-state';
+    const stateKey = GameService.StorageKey + '-state';
     return !!localStorage.getItem(stateKey);
   }
 

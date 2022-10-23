@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Player } from '../../../game/game-types';
-import { GameInfoService } from '../game-info/game-info.service';
+import { GameService } from '../game.service';
 
 @Injectable({
   providedIn: 'root',
@@ -28,11 +28,11 @@ export class PlayerCustomizationService {
   private playerSchemeMapping: Map<Player, ColorScheme> = new Map<Player, ColorScheme>();
   private nextPredefinedSchemeToUse: number = 0;
 
-  constructor(private gameInfoService: GameInfoService) {}
+  constructor(private gameService: GameService) {}
 
   getScheme(player: Player) {
     if (!this.playerSchemeMapping.has(player)) {
-      if (!this.gameInfoService.players.includes(player)) {
+      if (!this.gameService.players.includes(player)) {
         return this.defaultScheme;
       }
 

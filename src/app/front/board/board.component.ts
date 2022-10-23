@@ -1,47 +1,60 @@
-import { Component, Inject, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
-import { BoardBase } from '../../boardgame-io-angular/board-base';
-import { BoardConfig, OBSERVABLE_BOARD_CONFIG } from '../../boardgame-io-angular/config';
+import { Component, Input, OnInit } from '@angular/core';
 import { GameState, Player } from '../../game/game-types';
 import { PlayerCustomizationService } from '../common/player-customization/player-customization.service';
+import { GameService } from '../common/game.service';
 import { Ctx } from 'boardgame.io';
-import { GameInfoService } from '../common/game-info/game-info.service';
+import { _ClientImpl } from 'boardgame.io/dist/types/src/client/client';
 
 @Component({
   selector: 'app-board',
   templateUrl: './board.component.html',
   styleUrls: ['./board.component.scss'],
 })
-export class BoardComponent extends BoardBase implements OnInit {
-  public get state(): GameState {
-    return this.G;
+export class BoardComponent implements OnInit {
+  @Input()
+  set player(p: Player) {
+    if (p === this._player) {
+      return;
+    }
+
+    this._player = p;
+    this.client = null;
+    this.update();
   }
 
-  public get context(): Ctx {
-    return this.ctx;
+  get player(): Player {
+    return this._player;
   }
 
-  constructor(
-    @Inject(OBSERVABLE_BOARD_CONFIG) private boardConfig$: Observable<BoardConfig>,
-    private playerCustomizationService: PlayerCustomizationService,
-    private gameInfoService: GameInfoService
-  ) {
-    super(boardConfig$);
+  private _player: Player;
+
+  get color(): string {
+    return this.colorOf(this.player);
   }
+
+  state: GameState;
+  context: Ctx;
+
+  private client: _ClientImpl<GameState>;
+
+  constructor(private gameService: GameService, private playerCustomizationService: PlayerCustomizationService) {}
 
   ngOnInit() {
     this.update();
   }
 
   protected update() {
-    this.gameInfoService.update({ G: this.G, ctx: this.context });
+    if (!this.client) {
+      this.client = this.gameService.getPlayerClient(this.player);
+    }
+
+    const { G, ctx } = this.client.getState();
+
+    this.state = G;
+    this.context = ctx;
   }
 
   colorOf(player: Player) {
     return this.playerCustomizationService.getScheme(player).bgSelected;
-  }
-
-  color(): string {
-    return this.colorOf(this.playerID);
   }
 }

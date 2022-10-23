@@ -11,9 +11,10 @@
     </div>
   </div>
   <div class="w-full flex-grow flex items-center justify-evenly">
-    <div class="flex-grow h-full flex items-center justify-center relative border-2"
-         [ngStyle]="{ borderColor: color() }">
-      <bio-client [bioGameConfig]="config" gameID="single" [playerID]="currentPlayer" [debug]="debug"></bio-client>
+    <div *ngFor="let player of players; trackBy: identity"
+         class="flex-grow h-full flex items-center justify-center relative border-4"
+         [ngStyle]="{ borderColor: color }" [class.hidden]="this.currentPlayer !== player">
+      <app-board [player]="player"></app-board>
     </div>
   </div>
 </div>

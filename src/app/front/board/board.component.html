@@ -1,15 +1,17 @@
 <div *ngIf="state" class="text-center">
   <div class="w-full h-full flex flex-col">
     <div class="w-full p-2 font-bold">
-      <div *ngIf="!ctx.gameover" [ngStyle]="{ color: color() }">
-        PLAYER {{ playerID }}
+      <div *ngIf="!context.gameover" [ngStyle]="{ color }">
+        PLAYER {{ player }}
       </div>
-      <ng-container *ngIf="ctx.gameover?.draw">
+      <ng-container *ngIf="context.gameover?.draw">
         DRAW
       </ng-container>
-      <div *ngIf="ctx.gameover?.winner" [ngStyle]="{ color: colorOf(ctx.gameover.winner) }" class="font-bold">
-        Player {{ ctx.gameover.winner }} WINS!
+      <div *ngIf="context.gameover?.winner" [ngStyle]="{ color: colorOf(context.gameover.winner) }" class="font-bold">
+        Player {{ context.gameover.winner }} WINS!
       </div>
     </div>
   </div>
 </div>
+
+<div *ngIf="!state">Waiting for game state...</div>

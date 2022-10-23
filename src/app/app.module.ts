@@ -7,9 +7,6 @@ import { HomeComponent } from './common/home/home.component';
 import { PageNotFoundComponent } from './common/page-not-found/page-not-found.component';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { SvgIconsModule } from '@ngneat/svg-icon';
-import { paperIcon } from '@app/svg/paper';
-import { rockIcon } from '@app/svg/rock';
-import { scissorsIcon } from '@app/svg/scissors';
 import { MatButtonModule } from '@angular/material/button';
 
 @NgModule({
@@ -19,7 +16,7 @@ import { MatButtonModule } from '@angular/material/button';
     AppRoutingModule,
     RouterOutlet,
     SvgIconsModule.forRoot({
-      icons: [rockIcon, paperIcon, scissorsIcon],
+      icons: [],
       sizes: {
         xs: '10px',
         sm: '12px',
