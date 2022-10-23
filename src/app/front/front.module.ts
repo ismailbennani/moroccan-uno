@@ -8,9 +8,10 @@ import { SvgIconsModule } from '@ngneat/svg-icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
+import { CardComponent } from './common/card/card.component';
 
 @NgModule({
-  declarations: [GamePageComponent, BoardComponent],
+  declarations: [GamePageComponent, BoardComponent, CardComponent],
   imports: [
     CommonModule,
     FrontRoutingModule,

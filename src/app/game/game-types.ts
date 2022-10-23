@@ -9,34 +9,34 @@ export type Player = PlayerID;
 // ---- Value
 
 export enum CardValue {
-  Ace = 1,
-  King = 12,
-  Queen = 11,
-  Jack = 10,
-  Nine = 9,
-  Eight = 8,
-  Seven = 7,
-  Six = 6,
-  Five = 5,
-  Four = 4,
-  Three = 3,
-  Two = 2,
-  One = 1,
+  Ace = '1',
+  King = '12',
+  Queen = '11',
+  Jack = '10',
+  Nine = '9',
+  Eight = '8',
+  Seven = '7',
+  Six = '6',
+  Five = '5',
+  Four = '4',
+  Three = '3',
+  Two = '2',
+  One = '1',
 }
 
 export const CardValueNames = {
-  12: 'king',
-  11: 'queen',
-  10: 'jack',
-  9: 'nine',
-  8: 'eight',
-  7: 'seven',
-  6: 'six',
-  5: 'five',
-  4: 'four',
-  3: 'three',
-  2: 'two',
-  1: 'ace',
+  '12': 'king',
+  '11': 'queen',
+  '10': 'jack',
+  '9': 'nine',
+  '8': 'eight',
+  '7': 'seven',
+  '6': 'six',
+  '5': 'five',
+  '4': 'four',
+  '3': 'three',
+  '2': 'two',
+  '1': 'ace',
 };
 
 export const CardValues = Object.keys(CardValueNames);
@@ -77,10 +77,35 @@ export interface PlayerState {
   readonly hand: IdentifiedCard[];
 }
 
-export interface GameState {
+export interface FullGameState {
   players: { [id: PlayerID]: PlayerState };
   deck: IdentifiedCard[];
+  top: IdentifiedCard;
+  discard: IdentifiedCard[];
 }
+
+export interface HiddenPlayerState {
+  readonly player: Player;
+  readonly nCards: number;
+}
+
+export interface PartialGameState {
+  players: { [id: PlayerID]: PlayerState | HiddenPlayerState };
+  deck: number;
+  top: IdentifiedCard;
+  discard: IdentifiedCard[];
+}
+
+export type GameState = FullGameState | PartialGameState;
+
+export const hidePlayerState = (playerState: PlayerState) => ({
+  player: playerState.player,
+  nCards: playerState.hand.length,
+});
+
+export const isHiddenPlayerState = (state: PlayerState | HiddenPlayerState): state is HiddenPlayerState => {
+  return !(state as PlayerState).hand;
+};
 
 // ------------------------------------------------------------------------------
 // GAME OVER

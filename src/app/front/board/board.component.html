@@ -1,12 +1,41 @@
 <div *ngIf="state" class="text-center">
-  <div class="w-full h-full flex flex-col">
-    <div class="w-full p-2 font-bold">
-      <div *ngIf="!context.gameover" [ngStyle]="{ color }">PLAYER {{ player }}</div>
-      <ng-container *ngIf="context.gameover?.draw"> DRAW </ng-container>
-      <div *ngIf="context.gameover?.winner" [ngStyle]="{ color: colorOf(context.gameover.winner) }" class="font-bold">
-        Player {{ context.gameover.winner }} WINS!
+  <div *ngIf="!context.gameover" class="w-full flex p-2">
+    <div class="flex flex-col">
+        <span [ngStyle]="{ color: colorOf(otherPlayerState.player) }" class="pb-2">
+        PLAYER {{ otherPlayerState.player }}
+        </span>
+
+      <div class="flex gap-2">
+        <div *ngFor="let card of [].constructor(otherPlayerState.nCards)">
+          <app-card [hidden]="true" size="lg"></app-card>
+        </div>
       </div>
+
+      <div class="w-full h-48 flex items-center justify-center">
+        <app-card [card]="state.top"></app-card>
+      </div>
+
+
+      <div class="flex gap-2">
+        <div *ngFor="let card of playerState.hand; trackBy:getId">
+          <app-card [card]="card" size="lg" [hoverable]="true"></app-card>
+        </div>
+      </div>
+
+      <span [ngStyle]="{ color: colorOf(playerState.player) }" class="pt-2">
+        PLAYER {{ playerState.player }}
+      </span>
     </div>
+
+    <div class="flex flex-col items-center justify-center p-6">
+      <app-card [hidden]="true" [hoverable]="true"></app-card>
+      <span class="absolute text-sm font-bold text-white pointer-events-none"> {{ state.deck }} </span>
+    </div>
+  </div>
+
+  <ng-container *ngIf="context.gameover?.draw"> DRAW</ng-container>
+  <div *ngIf="context.gameover?.winner" [ngStyle]="{ color: colorOf(context.gameover.winner) }" class="font-bold">
+    Player {{ context.gameover.winner }} WINS!
   </div>
 </div>
 

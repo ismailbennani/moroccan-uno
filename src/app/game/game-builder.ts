@@ -1,7 +1,14 @@
-import { CardColors, CardValues, GameState, IdentifiedCard, PlayerState } from './game-types';
+import {
+  CardColors,
+  CardValues,
+  FullGameState,
+  GameState,
+  hidePlayerState,
+  IdentifiedCard,
+  PlayerState,
+} from './game-types';
 import { Game } from 'boardgame.io';
 import { RandomAPI } from 'boardgame.io/dist/types/src/plugins/random/random';
-import { PlayerView } from 'boardgame.io/core';
 
 export interface GameConfig {
   readonly startingCards: number;
@@ -19,23 +26,36 @@ export class GameBuilder {
 
         for (let i = 0; i < nCards; i++) {
           for (const player of players) {
-            drawCard(deck, player);
+            drawCardToPlayerHand(deck, player);
           }
         }
+
+        const top = drawCard(deck);
 
         return {
           players: Object.fromEntries(players.map(p => [p.player, p])),
           deck,
+          top,
+          discard: [],
         };
       },
 
-      playerView: PlayerView.STRIP_SECRETS,
+      playerView: ({ G, playerID }) => ({
+        players: Object.fromEntries(
+          Object.values(G.players).map(p =>
+            p.player === playerID ? [p.player, p] : [p.player, hidePlayerState(p as PlayerState)]
+          )
+        ),
+        deck: (G as FullGameState).deck.length,
+        top: G.top,
+        discard: G.discard,
+      }),
 
       endIf: ({ G }) => {
         const handNotEmpty = [];
 
         for (const playerState of Object.values(G.players)) {
-          if (playerState.hand.length > 0) {
+          if ((playerState as PlayerState).hand.length > 0) {
             handNotEmpty.push(playerState.player);
           }
         }
@@ -69,7 +89,11 @@ function createDeck(random: RandomAPI) {
   return random.Shuffle(deck);
 }
 
-function drawCard(deck: IdentifiedCard[], player: PlayerState) {
+function drawCard(deck: IdentifiedCard[]) {
+  return deck.pop();
+}
+
+function drawCardToPlayerHand(deck: IdentifiedCard[], player: PlayerState) {
   const card = deck.pop();
   player.hand.push(card);
 }
