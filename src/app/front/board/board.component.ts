@@ -1,9 +1,11 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { GameState, IdentifiedCard, Player, PlayerState } from '../../game/game-types';
+import { CardColors, CardValue, GameState, IdentifiedCard, Player, PlayerState } from '../../game/game-types';
 import { PlayerCustomizationService } from '../common/player-customization/player-customization.service';
 import { GameService } from '../common/game.service';
 import { Ctx } from 'boardgame.io';
 import { _ClientImpl } from 'boardgame.io/dist/types/src/client/client';
+import { MatDialog } from '@angular/material/dialog';
+import { ColorSelectionDialogComponent } from './color-selection-dialog/color-selection-dialog.component';
 
 @Component({
   selector: 'app-board',
@@ -45,7 +47,11 @@ export class BoardComponent implements OnInit {
 
   private client: _ClientImpl<GameState>;
 
-  constructor(private gameService: GameService, private playerCustomizationService: PlayerCustomizationService) {}
+  constructor(
+    private gameService: GameService,
+    private playerCustomizationService: PlayerCustomizationService,
+    public dialog: MatDialog
+  ) {}
 
   ngOnInit() {
     this.update();
@@ -56,7 +62,22 @@ export class BoardComponent implements OnInit {
   }
 
   clickCard(card: IdentifiedCard) {
-    this.client.moves['playCard'](card.id);
+    if (card.value === CardValue.Seven) {
+      this.dialog
+        .open(ColorSelectionDialogComponent, {
+          data: { colors: CardColors.filter(c => c !== this.state.top.color) },
+        })
+        .afterClosed()
+        .subscribe(result => {
+          if (result.cancel || !result.color) {
+            return;
+          }
+
+          this.client.moves['playCard'](card.id, result.color);
+        });
+    } else {
+      this.client.moves['playCard'](card.id);
+    }
   }
 
   colorOf(player: Player) {

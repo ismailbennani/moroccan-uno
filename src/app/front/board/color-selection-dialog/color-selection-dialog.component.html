@@ -1,0 +1,21 @@
+<div mat-dialog-title>
+  Choose a color
+</div>
+<div mat-dialog-content class="w-full !flex gap-2 items-center justify-center !m-0">
+    <mat-button-toggle-group name="color" aria-label="Card color" [(ngModel)]="selectedColor">
+      <mat-button-toggle *ngFor="let color of data.colors" [value]="color">
+        <app-card-color [color]="color" [showName]="true"></app-card-color>
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+</div>
+<div mat-dialog-actions>
+  <button mat-raised-button (click)="cancel()">
+    Cancel
+  </button>
+
+  <div class="flex-grow"></div>
+
+  <button mat-raised-button color=primary tabindex="0" (click)="confirm()">
+    Confirm
+  </button>
+</div>

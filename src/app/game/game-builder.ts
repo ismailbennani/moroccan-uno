@@ -28,11 +28,12 @@ export class GameBuilder {
         const playerStates: PlayerState[] = ctx.playOrder.map(p => ({ player: p, hand: [], handSize: 0 }));
         const nCards = this.config.startingCards ?? 7;
 
-        let state = {
+        let state: GameState = {
           players: Object.fromEntries(playerStates.map(p => [p.player, p])),
           deck,
           deckSize: deck.length,
           top: null,
+          currentColorOverride: null,
           discard: [],
           skipNextTurn: Object.fromEntries(playerStates.map(p => [p.player, false])),
         };
@@ -57,9 +58,8 @@ export class GameBuilder {
           drawCardToPlayerHand(G, playerID);
         },
 
-        playCard: (c, id: number, newColor?: CardColor): typeof INVALID_MOVE | void => {
-          const { G, ctx, playerID } = c;
-
+        playCard: ({ G, ctx, playerID }, id: number, newColor?: CardColor): typeof INVALID_MOVE | void => {
+          // CHECK IF MOVE IS VALID
           const cardIndex = G.players[playerID].hand.findIndex(c => c.id === id);
           if (cardIndex < 0) {
             return INVALID_MOVE;
@@ -67,16 +67,22 @@ export class GameBuilder {
 
           const card: IdentifiedCard = G.players[playerID].hand[cardIndex];
 
-          if (!validCard(G.top, card)) {
+          if (!validCard(G.top, G.currentColorOverride, card)) {
             return INVALID_MOVE;
           }
 
+          // OVERRIDE COLOR IF CARD IS SEVEN
           if (card.value === CardValue.Seven) {
-            if (!newColor) {
+            if (!newColor || newColor === G.top?.color) {
               return INVALID_MOVE;
             }
+
+            (G as any).currentColorOverride = newColor;
+          } else {
+            (G as any).currentColorOverride = null;
           }
 
+          // APPLY EFFECTS TO NEXT PLAYER IF ANY
           const nextPlayerPos = (ctx.playOrderPos + 1) % ctx.playOrder.length;
           const nextPlayer = ctx.playOrder[nextPlayerPos];
 
@@ -89,6 +95,7 @@ export class GameBuilder {
               break;
           }
 
+          // PLAY CARD
           G.players[playerID].hand.splice(cardIndex, 1);
           (G.players[playerID] as any).handSize = G.players[playerID].hand.length;
 
@@ -181,6 +188,8 @@ function drawCardToPlayerHand(G: GameState, player: Player, n: number = 1): void
   (G.players[player] as any).handSize = G.players[player].hand.length;
 }
 
-export function validCard(top: Card, newCard: Card) {
-  return top.value === newCard.value || top.color === newCard.color;
+export function validCard(top: Card, colorOverride: CardColor, newCard: Card) {
+  return (
+    top.value === newCard.value || (!colorOverride && top.color === newCard.color) || newCard.color === colorOverride
+  );
 }

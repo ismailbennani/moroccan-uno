@@ -82,6 +82,7 @@ export interface GameState {
   readonly deck: IdentifiedCard[];
   readonly deckSize: number;
   readonly top: IdentifiedCard;
+  readonly currentColorOverride: CardColor;
   readonly discard: IdentifiedCard[];
   readonly skipNextTurn: { [id: Player]: boolean };
 }

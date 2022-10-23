@@ -8,11 +8,13 @@ import { PageNotFoundComponent } from './common/page-not-found/page-not-found.co
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { SvgIconsModule } from '@ngneat/svg-icon';
 import { MatButtonModule } from '@angular/material/button';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
   declarations: [AppComponent, HomeComponent, PageNotFoundComponent],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     AppRoutingModule,
     RouterOutlet,
     SvgIconsModule.forRoot({

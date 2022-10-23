@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Card, IdentifiedCard, Player, PlayerState } from '../../../game/game-types';
+import { Card, GameState, IdentifiedCard, Player, PlayerState } from '../../../game/game-types';
 import { PlayerCustomizationService } from '../../common/player-customization/player-customization.service';
 import { CardSize } from '../../common/card/card.component';
 import { validCard } from '../../../game/game-builder';
@@ -11,7 +11,7 @@ import { validCard } from '../../../game/game-builder';
 })
 export class HandComponent {
   @Input()
-  top: Card;
+  state: GameState;
 
   @Input()
   playerState: PlayerState;
@@ -28,7 +28,7 @@ export class HandComponent {
   constructor(private playerCustomizationService: PlayerCustomizationService) {}
 
   canPlay(card: Card) {
-    return !top || validCard(this.top, card);
+    return validCard(this.state.top, this.state.currentColorOverride, card);
   }
 
   colorOf(player: Player) {

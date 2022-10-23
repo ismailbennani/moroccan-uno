@@ -1,0 +1,4 @@
+<div class="flex flex-col items-center justify-center">
+  <div [ngStyle]="{ color: getColor(color) }" class="leading-loose" *ngIf="showName"> {{ color }} </div>
+  <img [src]="getAssetPath(color)" [alt]="color"/>
+</div>

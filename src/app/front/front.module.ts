@@ -11,17 +11,33 @@ import { RouterLink } from '@angular/router';
 import { CardComponent } from './common/card/card.component';
 import { HandComponent } from './board/hand/hand.component';
 import { DeckComponent } from './board/deck/deck.component';
+import { MatDialogModule } from '@angular/material/dialog';
+import { ColorSelectionDialogComponent } from './board/color-selection-dialog/color-selection-dialog.component';
+import { CardColorComponent } from './common/card-color/card-color.component';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
-  declarations: [GamePageComponent, BoardComponent, CardComponent, HandComponent, DeckComponent],
+  declarations: [
+    GamePageComponent,
+    BoardComponent,
+    CardComponent,
+    HandComponent,
+    DeckComponent,
+    ColorSelectionDialogComponent,
+    CardColorComponent,
+  ],
   imports: [
     CommonModule,
     FrontRoutingModule,
     MatButtonModule,
     SvgIconsModule,
     MatDividerModule,
+    MatDialogModule,
     MatIconModule,
     RouterLink,
+    MatButtonToggleModule,
+    FormsModule,
   ],
 })
 export class FrontModule {}
