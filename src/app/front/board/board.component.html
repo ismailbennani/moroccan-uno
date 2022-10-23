@@ -16,7 +16,7 @@
     </div>
 
     <div class="flex items-center justify-center p-6">
-      <app-deck name="DECK" [hoverable]="true" [deckSize]="state.deckSize" (clickCard)="clickDeck()"></app-deck>
+      <app-deck name="DECK" [hoverable]="true" [deckSize]="state.deckSize" (clickCard)="clickDeck()" [class.hidden]="state.deckSize === 0"></app-deck>
     </div>
   </div>
 

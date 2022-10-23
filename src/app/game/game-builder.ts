@@ -1,5 +1,6 @@
 import {
   Card,
+  CardColor,
   CardColors,
   CardValue,
   CardValues,
@@ -22,7 +23,7 @@ export class GameBuilder {
 
   build(): Game<GameState> {
     return {
-      setup: ({ ctx, random }) => {
+      setup: ({ ctx, random }): GameState => {
         const deck = createDeck(random);
         const playerStates: PlayerState[] = ctx.playOrder.map(p => ({ player: p, hand: [], handSize: 0 }));
         const nCards = this.config.startingCards ?? 7;
@@ -36,23 +37,28 @@ export class GameBuilder {
           skipNextTurn: Object.fromEntries(playerStates.map(p => [p.player, false])),
         };
 
-        for (let i = 0; i < nCards; i++) {
-          for (const player of playerStates.map(p => p.player)) {
-            state = drawCardToPlayerHand(state, player);
-          }
+        for (const player of playerStates.map(p => p.player)) {
+          drawCardToPlayerHand(state, player, nCards);
         }
 
-        return drawCardToTop(state);
+        drawCardToTop(state);
+
+        return state;
       },
 
       playerView: ({ G, playerID }) => hideGameStateForPlayer(G, playerID),
 
       moves: {
-        drawCard: ({ G, playerID }): GameState => {
-          return drawCardToPlayerHand(G, playerID);
+        drawCard: ({ G, playerID }): typeof INVALID_MOVE | void => {
+          if (G.deck.length === 0) {
+            return INVALID_MOVE;
+          }
+
+          drawCardToPlayerHand(G, playerID);
         },
-        playCard: (c, id: number): typeof INVALID_MOVE | GameState => {
-          const { G, playerID } = c;
+
+        playCard: (c, id: number, newColor?: CardColor): typeof INVALID_MOVE | void => {
+          const { G, ctx, playerID } = c;
 
           const cardIndex = G.players[playerID].hand.findIndex(c => c.id === id);
           if (cardIndex < 0) {
@@ -65,29 +71,32 @@ export class GameBuilder {
             return INVALID_MOVE;
           }
 
-          const newState = applyEffects(c, card);
+          if (card.value === CardValue.Seven) {
+            if (!newColor) {
+              return INVALID_MOVE;
+            }
+          }
 
-          const newHand = G.players[playerID].hand.filter(c => c.id !== id);
+          const nextPlayerPos = (ctx.playOrderPos + 1) % ctx.playOrder.length;
+          const nextPlayer = ctx.playOrder[nextPlayerPos];
 
-          return {
-            ...newState,
-            players: Object.fromEntries(
-              Object.values(newState.players).map(p =>
-                p.player === playerID
-                  ? [
-                      p.player,
-                      {
-                        ...p,
-                        hand: newHand,
-                        handSize: newHand.length,
-                      },
-                    ]
-                  : [p.player, p]
-              )
-            ),
-            top: card,
-            discard: addToDiscard(G.top, G.discard),
-          };
+          switch (card.value) {
+            case CardValue.Ace:
+              G.skipNextTurn[nextPlayer] = true;
+              break;
+            case CardValue.Two:
+              drawCardToPlayerHand(G, nextPlayer, 2);
+              break;
+          }
+
+          G.players[playerID].hand.splice(cardIndex, 1);
+          (G.players[playerID] as any).handSize = G.players[playerID].hand.length;
+
+          if (G.top != null) {
+            G.discard.push(G.top);
+          }
+
+          (G as any).top = card;
         },
       },
 
@@ -101,6 +110,14 @@ export class GameBuilder {
           if (G.skipNextTurn[player]) {
             events.endTurn();
             G.skipNextTurn[player] = false;
+          }
+        },
+
+        onEnd: ({ G, random }) => {
+          if (G.deck.length === 0 && G.discard.length > 0) {
+            (G as any).deck = random.Shuffle(G.discard);
+            (G as any).deckSize = G.deck.length;
+            (G as any).discard = [];
           }
         },
       },
@@ -135,7 +152,6 @@ function createDeck(random: RandomAPI) {
   for (const color of CardColors) {
     for (const value of CardValues) {
       deck.push({ id, value, color });
-
       id++;
     }
   }
@@ -143,73 +159,28 @@ function createDeck(random: RandomAPI) {
   return random.Shuffle(deck);
 }
 
-function addToDiscard(card: IdentifiedCard, discard: IdentifiedCard[]) {
-  if (!card) {
-    return discard;
+function drawCardToTop(G: GameState): void {
+  if (G.top) {
+    G.discard.push(G.top);
   }
 
-  if (!discard || discard.length === 0) {
-    return [card];
+  (G as any).top = G.deck.pop();
+  (G as any).deckSize = G.deck.length;
+}
+
+function drawCardToPlayerHand(G: GameState, player: Player, n: number = 1): void {
+  if (!G.players[player].hand) {
+    return;
   }
 
-  return [card, ...discard];
-}
+  for (let i = 0; i < n; i++) {
+    G.players[player].hand.push(G.deck.pop());
+  }
 
-function drawCardToTop(G: GameState): GameState {
-  const card = G.deck.pop();
-
-  return {
-    ...G,
-    deckSize: G.deckSize - 1,
-    top: card,
-    discard: addToDiscard(G.top, G.discard),
-  };
-}
-
-function drawCardToPlayerHand(G: GameState, player: Player): GameState {
-  const newDeck = [...G.deck];
-  const card = newDeck.pop();
-
-  return {
-    ...G,
-    deck: newDeck,
-    deckSize: newDeck.length,
-    players: Object.fromEntries(
-      Object.values(G.players).map(p =>
-        p.player === player
-          ? [
-              p.player,
-              {
-                ...p,
-                hand: [...p.hand, card],
-                handSize: p.handSize + 1,
-              },
-            ]
-          : [p.player, p]
-      )
-    ),
-  };
+  (G as any).deckSize = G.deck.length;
+  (G.players[player] as any).handSize = G.players[player].hand.length;
 }
 
 export function validCard(top: Card, newCard: Card) {
   return top.value === newCard.value || top.color === newCard.color;
-}
-
-function applyEffects({ G, ctx, events }, card): GameState {
-  let skipNextTurn = G.skipNextTurn;
-  const nextPlayerPos = (ctx.playOrderPos + 1) % ctx.playOrder.length;
-  const nextPlayer = ctx.playOrder[nextPlayerPos];
-
-  switch (card.value) {
-    case CardValue.Ace:
-      skipNextTurn = Object.fromEntries(
-        Object.entries(skipNextTurn).map(([p, b]) => (p === nextPlayer ? [p, true] : [p, b]))
-      );
-      break;
-  }
-
-  return {
-    ...G,
-    skipNextTurn,
-  };
 }
