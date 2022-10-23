@@ -1,21 +1,20 @@
-import {CardColors, CardValues, GameState, IdentifiedCard, PlayerState} from './game-types';
-import {Game} from 'boardgame.io';
-import {RandomAPI} from "boardgame.io/dist/types/src/plugins/random/random";
-import {PlayerView} from "boardgame.io/core";
+import { CardColors, CardValues, GameState, IdentifiedCard, PlayerState } from './game-types';
+import { Game } from 'boardgame.io';
+import { RandomAPI } from 'boardgame.io/dist/types/src/plugins/random/random';
+import { PlayerView } from 'boardgame.io/core';
 
 export interface GameConfig {
   readonly startingCards: number;
 }
 
 export class GameBuilder {
-  constructor(private config: Partial<GameConfig> = {}) {
-  }
+  constructor(private config: Partial<GameConfig> = {}) {}
 
   build(): Game<GameState> {
     return {
-      setup: ({ctx, random}) => {
+      setup: ({ ctx, random }) => {
         const deck = createDeck(random);
-        const players = ctx.playOrder.map(p => ({player: p, hand: []}));
+        const players = ctx.playOrder.map(p => ({ player: p, hand: [] }));
         const nCards = this.config.startingCards ?? 7;
 
         for (let i = 0; i < nCards; i++) {
@@ -45,9 +44,9 @@ export class GameBuilder {
           case 0:
             return { draw: true };
           case 1:
-            return { looser: handNotEmpty[0] }
+            return { looser: handNotEmpty[0] };
           default:
-            return void 0
+            return void 0;
         }
       },
     };
@@ -61,7 +60,7 @@ function createDeck(random: RandomAPI) {
 
   for (const color of CardColors) {
     for (const value of CardValues) {
-      deck.push({id, value, color});
+      deck.push({ id, value, color });
 
       id++;
     }

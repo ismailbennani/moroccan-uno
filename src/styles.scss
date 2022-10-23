@@ -8,12 +8,12 @@ $my-primary: mat.define-palette(mat.$gray-palette, 700);
 $my-accent: mat.define-palette(mat.$gray-palette, A400, A200, A700);
 
 $my-theme: mat.define-light-theme(
-    (
-      color: (
-        primary: $my-primary,
-        accent: $my-accent,
-      ),
-    )
+  (
+    color: (
+      primary: $my-primary,
+      accent: $my-accent,
+    ),
+  )
 );
 
 @include mat.all-component-themes($my-theme);
