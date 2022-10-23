@@ -1,0 +1,20 @@
+<div [ngStyle]="{ color: colorOf(playerState.player) }" class="pb-2" *ngIf="labelPosition === 'above'">
+  PLAYER {{ playerState.player }}
+</div>
+
+<div class="flex gap-2 justify-center">
+  <ng-container *ngIf="!!playerState.hand">
+    <div *ngFor="let card of playerState.hand; trackBy:getId">
+      <app-card [card]="card" [size]="size" [hoverable]="true"></app-card>
+    </div>
+  </ng-container>
+  <ng-container *ngIf="!playerState.hand">
+    <div *ngFor="let card of [].constructor(playerState.handSize)">
+      <app-card [hidden]="true" [size]="size"></app-card>
+    </div>
+  </ng-container>
+</div>
+
+<div [ngStyle]="{ color: colorOf(playerState.player) }" class="pt-2" *ngIf="labelPosition === 'below'">
+  PLAYER {{ playerState.player }}
+</div>

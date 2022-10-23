@@ -22,7 +22,7 @@ export class CardComponent {
   }
 
   @Input()
-  set size(s: Size) {
+  set size(s: CardSize) {
     this._size = s;
     this.update();
   }
@@ -47,7 +47,7 @@ export class CardComponent {
 
   private _hidden: boolean;
   private _card: Card;
-  private _size: Size;
+  private _size: CardSize;
 
   constructor() {}
 
@@ -147,4 +147,4 @@ export class CardComponent {
   }
 }
 
-export type Size = 'sm' | 'md' | 'lg';
+export type CardSize = 'sm' | 'md' | 'lg';

@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { GameService } from '../common/game.service';
 import { PlayerCustomizationService } from '../common/player-customization/player-customization.service';
 import { isDraw, Player } from '../../game/game-types';
+import { resetState } from '../common/utils';
 
 @Component({
   selector: 'app-game-page',
@@ -30,6 +31,11 @@ export class GamePageComponent {
   }
 
   constructor(private gameService: GameService, private playerCustomizationService: PlayerCustomizationService) {}
+
+  reset() {
+    resetState();
+    location.reload();
+  }
 
   identity(x): any {
     return x;

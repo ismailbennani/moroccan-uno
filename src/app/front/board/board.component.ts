@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { GameState, HiddenPlayerState, PartialGameState, Player, PlayerState } from '../../game/game-types';
+import { GameState, Player, PlayerState } from '../../game/game-types';
 import { PlayerCustomizationService } from '../common/player-customization/player-customization.service';
 import { GameService } from '../common/game.service';
 import { Ctx } from 'boardgame.io';
@@ -39,8 +39,8 @@ export class BoardComponent implements OnInit {
     return this.state.players[this.player] as PlayerState;
   }
 
-  get otherPlayerState(): HiddenPlayerState {
-    return Object.entries(this.state.players).find(([p, _]) => p !== this.player)[1] as HiddenPlayerState;
+  get otherPlayerState(): PlayerState {
+    return Object.entries(this.state.players).find(([p, _]) => p !== this.player)[1];
   }
 
   private client: _ClientImpl<GameState>;
@@ -51,22 +51,22 @@ export class BoardComponent implements OnInit {
     this.update();
   }
 
-  protected update() {
-    if (!this.client) {
-      this.client = this.gameService.getPlayerClient(this.player);
-    }
-
-    const { G, ctx } = this.client.getState();
-
-    this.state = G as unknown as PartialGameState;
-    this.context = ctx;
+  clickDeck() {
+    this.client.moves['drawCard']();
   }
 
   colorOf(player: Player) {
     return this.playerCustomizationService.getScheme(player).bgSelected;
   }
+  protected update() {
+    if (!this.client) {
+      this.client = this.gameService.getPlayerClient(this.player);
+      this.client.subscribe(_ => this.update());
+    }
 
-  getId(_, { id }: { id: number }) {
-    return id;
+    const { G, ctx } = this.client.getState();
+
+    this.state = G;
+    this.context = ctx;
   }
 }

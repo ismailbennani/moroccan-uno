@@ -1,35 +1,22 @@
 <div *ngIf="state" class="text-center">
   <div *ngIf="!context.gameover" class="w-full flex p-2">
-    <div class="flex flex-col">
-        <span [ngStyle]="{ color: colorOf(otherPlayerState.player) }" class="pb-2">
-        PLAYER {{ otherPlayerState.player }}
-        </span>
+    <div class="flex items-center justify-center p-6">
+      <app-deck name="DISCARD" [deckSize]="state.discard.length" [class.hidden]="state.discard.length === 0"></app-deck>
+    </div>
 
-      <div class="flex gap-2">
-        <div *ngFor="let card of [].constructor(otherPlayerState.nCards)">
-          <app-card [hidden]="true" size="lg"></app-card>
-        </div>
-      </div>
+    <div class="flex flex-col">
+      <app-hand [playerState]="otherPlayerState" labelPosition="above"></app-hand>
 
       <div class="w-full h-48 flex items-center justify-center">
         <app-card [card]="state.top"></app-card>
       </div>
 
 
-      <div class="flex gap-2">
-        <div *ngFor="let card of playerState.hand; trackBy:getId">
-          <app-card [card]="card" size="lg" [hoverable]="true"></app-card>
-        </div>
-      </div>
-
-      <span [ngStyle]="{ color: colorOf(playerState.player) }" class="pt-2">
-        PLAYER {{ playerState.player }}
-      </span>
+      <app-hand [playerState]="playerState" labelPosition="below"></app-hand>
     </div>
 
-    <div class="flex flex-col items-center justify-center p-6">
-      <app-card [hidden]="true" [hoverable]="true"></app-card>
-      <span class="absolute text-sm font-bold text-white pointer-events-none"> {{ state.deck }} </span>
+    <div class="flex items-center justify-center p-6">
+      <app-deck name="DECK" [hoverable]="true" [deckSize]="state.deckSize" (click)="clickDeck()"></app-deck>
     </div>
   </div>
 

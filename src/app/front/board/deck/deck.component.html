@@ -1,0 +1,13 @@
+<div class="relative">
+  <app-card [hidden]="true" [hoverable]="hoverable" [disabled]="disabled"
+            (click)="click.emit()" (hover)="hover.emit($event)"></app-card>
+  <span
+    class="absolute inset-0 flex flex-col items-center justify-center text-white select-none pointer-events-none">
+          <span class="text-xxs">
+            {{ name }}
+          </span>
+          <span class="text-md">
+            {{ deckSize }}
+          </span>
+        </span>
+</div>

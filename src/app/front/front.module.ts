@@ -9,9 +9,11 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { RouterLink } from '@angular/router';
 import { CardComponent } from './common/card/card.component';
+import { HandComponent } from './board/hand/hand.component';
+import { DeckComponent } from './board/deck/deck.component';
 
 @NgModule({
-  declarations: [GamePageComponent, BoardComponent, CardComponent],
+  declarations: [GamePageComponent, BoardComponent, CardComponent, HandComponent, DeckComponent],
   imports: [
     CommonModule,
     FrontRoutingModule,

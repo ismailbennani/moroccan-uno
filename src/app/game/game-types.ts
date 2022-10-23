@@ -75,37 +75,31 @@ export interface IdentifiedCard extends Card {
 export interface PlayerState {
   readonly player: Player;
   readonly hand: IdentifiedCard[];
+  readonly handSize: number;
 }
 
-export interface FullGameState {
-  players: { [id: PlayerID]: PlayerState };
-  deck: IdentifiedCard[];
-  top: IdentifiedCard;
-  discard: IdentifiedCard[];
+export interface GameState {
+  readonly players: { [id: PlayerID]: PlayerState };
+  readonly deck: IdentifiedCard[];
+  readonly deckSize: number;
+  readonly top: IdentifiedCard;
+  readonly discard: IdentifiedCard[];
 }
 
-export interface HiddenPlayerState {
-  readonly player: Player;
-  readonly nCards: number;
-}
-
-export interface PartialGameState {
-  players: { [id: PlayerID]: PlayerState | HiddenPlayerState };
-  deck: number;
-  top: IdentifiedCard;
-  discard: IdentifiedCard[];
-}
-
-export type GameState = FullGameState | PartialGameState;
-
-export const hidePlayerState = (playerState: PlayerState) => ({
-  player: playerState.player,
-  nCards: playerState.hand.length,
+export const hidePlayerState = (playerState: PlayerState): PlayerState => ({
+  ...playerState,
+  hand: null,
 });
 
-export const isHiddenPlayerState = (state: PlayerState | HiddenPlayerState): state is HiddenPlayerState => {
-  return !(state as PlayerState).hand;
-};
+export const hideGameStateForPlayer = (gameState: GameState, player: PlayerID): GameState => ({
+  ...gameState,
+  players: Object.fromEntries(
+    Object.values(gameState.players).map(p =>
+      p.player === player ? [p.player, p] : [p.player, hidePlayerState(p as PlayerState)]
+    )
+  ),
+  deck: [],
+});
 
 // ------------------------------------------------------------------------------
 // GAME OVER
