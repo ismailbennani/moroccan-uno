@@ -110,7 +110,7 @@ export interface Draw {
 }
 
 export interface PlayerLost {
-  loser: Player;
+  winner: Player;
 }
 
 export type GameOver = Draw | PlayerLost;
@@ -119,6 +119,6 @@ export const isDraw = (gameover: GameOver): gameover is Draw => {
   return !!(gameover as unknown as Draw)?.draw;
 };
 
-export const playerLost = (gameover: GameOver): Player => {
-  return isDraw(gameover) ? undefined : gameover.loser;
+export const playerWon = (gameover: GameOver): Player => {
+  return isDraw(gameover) ? undefined : gameover.winner;
 };

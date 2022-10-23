@@ -1,6 +1,6 @@
-<div class="p-0.5 border-[1px] border-slate-300 rounded-md select-none"
-     [class.hover:border-slate-400]="hoverable && !disabled" [class.hover:cursor-pointer]="hoverable && !disabled"
-     [class.border-slate-500]="selected && !disabled"
+<div class="p-0.5 border-[1px] border-slate-400 rounded-md select-none"
+     [class.hover:border-slate-500]="!disabled" [class.hover:cursor-pointer]="!disabled"
+     [class.border-slate-700]="selected && !disabled" [class.!border-slate-200]="disabled"
      (click)="onClick()" (mouseenter)="onHover(true)" (mouseleave)="onHover(false)">
   <img [src]="asset" [alt]="cardName" class="h-14 w-10 object-none"/>
 </div>

@@ -1,4 +1,5 @@
 import {
+  Card,
   CardColors,
   CardValues,
   GameState,
@@ -9,6 +10,7 @@ import {
 } from './game-types';
 import { Game } from 'boardgame.io';
 import { RandomAPI } from 'boardgame.io/dist/types/src/plugins/random/random';
+import { INVALID_MOVE } from 'boardgame.io/core';
 
 export interface GameConfig {
   readonly startingCards: number;
@@ -44,8 +46,42 @@ export class GameBuilder {
       playerView: ({ G, playerID }) => hideGameStateForPlayer(G, playerID),
 
       moves: {
-        drawCard: ({ G, playerID }) => {
+        drawCard: ({ G, playerID }): GameState => {
           return drawCardToPlayerHand(G, playerID);
+        },
+        playCard: ({ G, playerID }, id: number): typeof INVALID_MOVE | GameState => {
+          const cardIndex = G.players[playerID].hand.findIndex(c => c.id === id);
+          if (cardIndex < 0) {
+            return INVALID_MOVE;
+          }
+
+          const card = G.players[playerID].hand[cardIndex];
+
+          if (!validCard(G.top, card)) {
+            return INVALID_MOVE;
+          }
+
+          const newHand = G.players[playerID].hand.filter(c => c.id !== id);
+
+          return {
+            ...G,
+            players: Object.fromEntries(
+              Object.values(G.players).map(p =>
+                p.player === playerID
+                  ? [
+                      p.player,
+                      {
+                        ...p,
+                        hand: newHand,
+                        handSize: newHand.length,
+                      },
+                    ]
+                  : [p.player, p]
+              )
+            ),
+            top: card,
+            discard: addToDiscard(G.top, G.discard),
+          };
         },
       },
 
@@ -55,21 +91,21 @@ export class GameBuilder {
       },
 
       endIf: ({ G }) => {
-        const handNotEmpty = [];
+        const handEmpty = [];
 
         for (const playerState of Object.values(G.players)) {
-          if ((playerState as PlayerState).hand.length > 0) {
-            handNotEmpty.push(playerState.player);
+          if (playerState.handSize === 0) {
+            handEmpty.push(playerState.player);
           }
         }
 
-        switch (handNotEmpty.length) {
+        switch (handEmpty.length) {
           case 0:
-            return { draw: true };
-          case 1:
-            return { looser: handNotEmpty[0] };
-          default:
             return void 0;
+          case 1:
+            return { winner: handEmpty[0] };
+          default:
+            return { draw: true };
         }
       },
     };
@@ -138,4 +174,8 @@ function drawCardToPlayerHand(G: GameState, player: Player): GameState {
       )
     ),
   };
+}
+
+export function validCard(top: Card, newCard: Card) {
+  return top.value === newCard.value || top.color === newCard.color;
 }

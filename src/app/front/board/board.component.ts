@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { GameState, Player, PlayerState } from '../../game/game-types';
+import { GameState, IdentifiedCard, Player, PlayerState } from '../../game/game-types';
 import { PlayerCustomizationService } from '../common/player-customization/player-customization.service';
 import { GameService } from '../common/game.service';
 import { Ctx } from 'boardgame.io';
@@ -55,9 +55,14 @@ export class BoardComponent implements OnInit {
     this.client.moves['drawCard']();
   }
 
+  clickCard(card: IdentifiedCard) {
+    this.client.moves['playCard'](card.id);
+  }
+
   colorOf(player: Player) {
     return this.playerCustomizationService.getScheme(player).bgSelected;
   }
+
   protected update() {
     if (!this.client) {
       this.client = this.gameService.getPlayerClient(this.player);

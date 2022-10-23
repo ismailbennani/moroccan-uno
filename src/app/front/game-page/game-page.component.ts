@@ -24,7 +24,7 @@ export class GamePageComponent {
         return 'inherit';
       }
 
-      return this.playerCustomizationService.getScheme(this.gameService.gameover.loser).primary;
+      return this.playerCustomizationService.getScheme(this.gameService.gameover.winner).primary;
     }
 
     return this.playerCustomizationService.getScheme(this.currentPlayer).primary;

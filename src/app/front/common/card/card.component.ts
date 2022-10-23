@@ -28,9 +28,6 @@ export class CardComponent {
   }
 
   @Input()
-  hoverable: boolean;
-
-  @Input()
   disabled: boolean;
 
   @Input()
@@ -40,7 +37,7 @@ export class CardComponent {
   hover: EventEmitter<boolean> = new EventEmitter<boolean>();
 
   @Output()
-  click: EventEmitter<void> = new EventEmitter<void>();
+  clickCard: EventEmitter<void> = new EventEmitter<void>();
 
   asset: string;
   cardName: string;
@@ -135,11 +132,11 @@ export class CardComponent {
       return;
     }
 
-    this.click.emit();
+    this.clickCard.emit();
   }
 
   onHover(b: boolean) {
-    if (!this.hoverable || this.disabled) {
+    if (this.disabled) {
       return;
     }
 
