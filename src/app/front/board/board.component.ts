@@ -65,7 +65,13 @@ export class BoardComponent implements OnInit {
     if (card.value === CardValue.Seven) {
       this.dialog
         .open(ColorSelectionDialogComponent, {
-          data: { colors: CardColors.filter(c => c !== this.state.top.color) },
+          data: {
+            colors: CardColors.filter(
+              c =>
+                (this.state.currentColorOverride && c !== this.state.currentColorOverride) ||
+                (!this.state.currentColorOverride && c !== this.state.top.color)
+            ),
+          },
         })
         .afterClosed()
         .subscribe(result => {
