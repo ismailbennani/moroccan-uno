@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { resetState } from '../../front/common/utils';
 import { GameService } from '../../front/common/game.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -13,12 +14,12 @@ export class HomeComponent implements OnInit {
     return !!localStorage.getItem(stateKey);
   }
 
-  constructor() {}
+  constructor(private router: Router) {}
 
   ngOnInit(): void {}
 
   newGame() {
     resetState();
-    location.replace('/game');
+    this.router.navigate(['/', 'game']).then(_ => location.reload());
   }
 }
