@@ -14,12 +14,10 @@
   </div>
   <div class="w-full flex-grow flex items-center justify-evenly">
     <div
-      *ngFor="let player of players; trackBy: identity"
       class="flex-grow h-full flex items-center justify-center relative border-4"
       [ngStyle]="{ borderColor: color }"
-      [class.hidden]="this.currentPlayer !== player"
     >
-      <app-board [player]="player"></app-board>
+      <app-board [player]="'0'"></app-board>
     </div>
   </div>
 </div>

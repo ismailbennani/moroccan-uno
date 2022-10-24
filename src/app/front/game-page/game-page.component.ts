@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { GameService } from '../common/game.service';
 import { PlayerCustomizationService } from '../common/player-customization/player-customization.service';
-import { isDraw, Player } from '../../game/game-types';
+import { isDraw } from '../../game/game-types';
 import { resetState } from '../common/utils';
 
 @Component({
@@ -10,14 +10,6 @@ import { resetState } from '../common/utils';
   styleUrls: ['./game-page.component.scss'],
 })
 export class GamePageComponent {
-  get players(): Player[] {
-    return this.gameService?.players ?? [];
-  }
-
-  get currentPlayer(): Player {
-    return this.gameService?.currentPlayer;
-  }
-
   get color(): string {
     if (this.gameService?.gameover) {
       if (isDraw(this.gameService.gameover)) {
@@ -27,7 +19,7 @@ export class GamePageComponent {
       return this.playerCustomizationService.getScheme(this.gameService.gameover.winner).primary;
     }
 
-    return this.playerCustomizationService.getScheme(this.currentPlayer).primary;
+    return this.playerCustomizationService.getScheme('0').primary;
   }
 
   constructor(private gameService: GameService, private playerCustomizationService: PlayerCustomizationService) {}

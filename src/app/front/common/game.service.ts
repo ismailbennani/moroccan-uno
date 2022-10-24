@@ -1,10 +1,12 @@
 import { Injectable, isDevMode } from '@angular/core';
 import { GameOver, GameState, Player } from '../../game/game-types';
-import { Game, State } from 'boardgame.io';
+import { CredentialedActionShape, Game, State } from 'boardgame.io';
 import { GameBuilder } from '../../game/game-builder';
 import { Local } from 'boardgame.io/multiplayer';
 import { Client } from 'boardgame.io/client';
 import { _ClientImpl } from 'boardgame.io/dist/types/src/client/client';
+import { Bot, MCTSBot } from 'boardgame.io/ai';
+import MakeMove = CredentialedActionShape.MakeMove;
 
 @Injectable({
   providedIn: 'root',
@@ -15,6 +17,7 @@ export class GameService {
   private game: Game<GameState>;
   private clients: { [id: Player]: _ClientImpl<GameState> } = {};
   private spectator: _ClientImpl<GameState>;
+  private bot: Bot;
 
   get state(): State<GameState> {
     return this.spectator?.getState();
@@ -34,6 +37,12 @@ export class GameService {
 
   constructor() {
     this.game = new GameBuilder().build();
+    this.bot = new MCTSBot({
+      game: this.game,
+      enumerate: this.game.ai.enumerate,
+      iterations: 100,
+      playoutDepth: 10,
+    });
 
     const firstClient = Client({
       game: this.game,
@@ -56,6 +65,23 @@ export class GameService {
           debug: isDevMode(),
         });
         this.clients[player].start();
+
+        if (this.isAIPlayer(player)) {
+          this.clients[player].subscribe(state => {
+            if (state.ctx.currentPlayer !== player) {
+              return;
+            }
+
+            this.bot.play(state, player).then(({ action }) => {
+              const move = action as MakeMove;
+              if (move.payload.args) {
+                this.clients[player].moves[move.payload.type](...move.payload.args);
+              } else {
+                this.clients[player].moves[move.payload.type]();
+              }
+            });
+          });
+        }
       }
     }
 
@@ -74,5 +100,9 @@ export class GameService {
 
   getSpectator() {
     return this.spectator;
+  }
+
+  isAIPlayer(player: Player): boolean {
+    return player !== '0';
   }
 }

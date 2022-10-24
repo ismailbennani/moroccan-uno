@@ -1,8 +1,10 @@
 import {
   Card,
   CardColor,
+  CardColorNames,
   CardColors,
   CardValue,
+  CardValueNames,
   CardValues,
   GameState,
   hideGameStateForPlayer,
@@ -51,7 +53,8 @@ export class GameBuilder {
 
       moves: {
         drawCard: ({ G, playerID }): typeof INVALID_MOVE | void => {
-          if (G.deck.length === 0) {
+          if (G.deckSize === 0) {
+            console.log('Cannot draw when deck is empty');
             return INVALID_MOVE;
           }
 
@@ -60,20 +63,23 @@ export class GameBuilder {
 
         playCard: ({ G, ctx, playerID }, id: number, newColor?: CardColor): typeof INVALID_MOVE | void => {
           // CHECK IF MOVE IS VALID
-          const cardIndex = G.players[playerID].hand.findIndex(c => c.id === id);
+          const cardIndex = G.players[playerID].hand.findIndex(c => c?.id === id);
           if (cardIndex < 0) {
+            console.log(`Card with id ${id} not found`);
             return INVALID_MOVE;
           }
 
           const card: IdentifiedCard = G.players[playerID].hand[cardIndex];
 
           if (!validCard(G.top, G.currentColorOverride, card)) {
+            console.log(`Cannot play invalid card ${CardValueNames[card.value]} of ${CardColorNames[card.color]}`);
             return INVALID_MOVE;
           }
 
           // OVERRIDE COLOR IF CARD IS SEVEN
           if (card.value === CardValue.Seven) {
             if (!newColor || newColor === G.top?.color) {
+              console.log(`New color must be different than current color ${G.top?.color}`);
               return INVALID_MOVE;
             }
 
@@ -126,6 +132,40 @@ export class GameBuilder {
             (G as any).deckSize = G.deck.length;
             (G as any).discard = [];
           }
+        },
+      },
+
+      ai: {
+        enumerate: (G, ctx, playerID) => {
+          const moves = [];
+
+          if (G.deckSize > 0) {
+            moves.push({ move: 'drawCard', args: [] });
+          }
+
+          if (!G.players[playerID].hand) {
+            return moves;
+          }
+
+          for (const card of G.players[playerID].hand) {
+            if (G.top && !validCard(G.top, G.currentColorOverride, card)) {
+              continue;
+            }
+
+            if (card.value === CardValue.Seven) {
+              for (const color of CardColors) {
+                if (color === G.top?.color) {
+                  continue;
+                }
+
+                moves.push({ move: 'playCard', args: [card.id, color] });
+              }
+            } else {
+              moves.push({ move: 'playCard', args: [card.id] });
+            }
+          }
+
+          return moves;
         },
       },
 
@@ -189,6 +229,14 @@ function drawCardToPlayerHand(G: GameState, player: Player, n: number = 1): void
 }
 
 export function validCard(top: Card, colorOverride: CardColor, newCard: Card) {
+  if (!top) {
+    return true;
+  }
+
+  if (!newCard) {
+    return false;
+  }
+
   return (
     top.value === newCard.value || (!colorOverride && top.color === newCard.color) || newCard.color === colorOverride
   );
